@@ -1,6 +1,6 @@
 - name: Default config is disabled
   file:
-    path: /etc/nginx/sites-enabled/
+    path: /etc/nginx/sites-enabled/default
     state: absent
   notify: Restart nginx
 
@@ -13,18 +13,8 @@
     mode: "644"
   notify: Restart nginx
 
-- name: Site config is enabled
-  file:
-    src: /etc/nginx/sites-available/pterodactyl.conf
-    dest: /etc/nginx/sites-enabled/pterodactyl.conf
-    state: link
-    owner: root
-    group: root
-  notify: Restart nginx
-
 # TODO :
 # - backport rewrite
-# - manage SSL
 
 # - name: Look for enabled rewrite module
 #   stat:
