@@ -18,7 +18,6 @@
       # Needed to ensure that become_user to www-data works
       - acl
 
-
 - name: Apache Dependency packages are installed
   when: pterodactyl_panel_use_nginx is false
   ansible.builtin.package:
@@ -26,7 +25,7 @@
       - apache2
       - libapache2-mod-php
 
-- name: Dependency packages are installed ( Nginx )
+- name: Nginx Dependency packages are installed
   when: pterodactyl_panel_use_nginx is true
   ansible.builtin.package:
     name:
