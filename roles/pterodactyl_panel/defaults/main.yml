@@ -9,6 +9,9 @@ pterodactyl_panel_ssl_cert: "{{ (pterodactyl_panel_ssl_mode == 'none') | ternary
 pterodactyl_panel_ssl_key: "{{ (pterodactyl_panel_ssl_mode == 'none') | ternary('/etc/letsencrypt/live/' + pterodactyl_panel_domain + '/privkey.pem', '/etc/ssl/panel-selfsign.key') }}"
 pterodactyl_panel_upload_limit: 100M
 
+# Nginx 
+pterodactyl_panel_use_nginx: false
+
 #pterodactyl_panel_app_key:
 #pterodactyl_panel_hashids_salt:
 pterodactyl_panel_timezone: America/New_York

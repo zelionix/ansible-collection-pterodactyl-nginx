@@ -1,0 +1,21 @@
+server {
+	listen 80;
+	listen [::]:80;
+
+    server_name {{ pterodactyl_panel_domain }} ;
+
+	root {{ pterodactyl_panel_webroot }}/public ;
+
+    access_log /var/log/nginx/front_client-access.log;
+
+
+    index index.php;
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock; # Warning : only the version as group & sticky bit that fit...
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}

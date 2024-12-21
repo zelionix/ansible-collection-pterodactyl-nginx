@@ -1,4 +1,7 @@
 
+### Features
+ansible-collection-pterodactyl/issues/220)) [Lionel Kaufmann]
+
 <a name="v0.4.1"></a>
 ## [v0.4.1] - 2022-01-21
 ### Features

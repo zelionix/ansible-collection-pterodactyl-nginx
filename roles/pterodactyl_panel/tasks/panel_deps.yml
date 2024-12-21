@@ -1,8 +1,6 @@
-- name: Dependency packages are installed
-  package:
+- name: Common dependency packages are installed
+  ansible.builtin.package:
     name:
-      - apache2
-      - libapache2-mod-php
       - php-pdo
       - php-gd
       - php-mysql
@@ -19,6 +17,20 @@
       - redis-server
       # Needed to ensure that become_user to www-data works
       - acl
+
+
+- name: Apache Dependency packages are installed
+  when: pterodactyl_panel_use_nginx is false
+  ansible.builtin.package:
+    name:
+      - apache2
+      - libapache2-mod-php
+
+- name: Dependency packages are installed ( Nginx )
+  when: pterodactyl_panel_use_nginx is true
+  ansible.builtin.package:
+    name:
+      - php-fpm
 
 - name: Look for composer executable
   stat:

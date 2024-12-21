@@ -1,0 +1,60 @@
+- name: Default config is disabled
+  file:
+    path: /etc/nginx/sites-enabled/
+    state: absent
+  notify: Restart nginx
+
+# - name: webserver | Configure nginx vhosts
+#   ansible.builtin.template:
+#     src: "templates/etc/nginx/sites-enabled/{{ item }}"
+#     dest: "/etc/nginx/sites-enabled//{{ item }}"
+#     owner: root
+#     group: root
+#     mode: "0444"
+#   with_items:
+#     - front.conf
+
+- name: Site config is installed
+  template:
+    src: pterodactyl_nginx.conf.j2
+    dest: /etc/nginx/sites-available/pterodactyl.conf
+    owner: root
+    group: root
+    mode: "644"
+  notify: Restart nginx
+
+- name: Site config is enabled
+  file:
+    src: /etc/nginx/sites-available/pterodactyl.conf
+    dest: /etc/nginx/sites-enabled/pterodactyl.conf
+    state: link
+    owner: root
+    group: root
+  notify: Restart nginx
+
+# TODO :
+# - backport rewrite
+# - manage SSL
+
+# - name: Look for enabled rewrite module
+#   stat:
+#     path: /etc/apache2/mods-enabled/rewrite.load
+#   register: pterodactyl_panel_apache2_rewrite
+# - name: Enable rewrite module # noqa no-changed-when
+#   command: a2enmod rewrite
+#   notify: Restart apache2
+#   when: not pterodactyl_panel_apache2_rewrite.stat.exists
+
+# - name: Look for enabled ssl module
+#   stat:
+#     path: /etc/apache2/mods-enabled/ssl.load
+#   register: pterodactyl_panel_apache2_ssl
+# - name: Enable rewrite module # noqa no-changed-when
+#   command: a2enmod ssl
+#   notify: Restart apache2
+#   when: not pterodactyl_panel_apache2_ssl.stat.exists
+
+- name: Nginx service is enabled
+  systemd:
+    name: nginx.service
+    enabled: yes
