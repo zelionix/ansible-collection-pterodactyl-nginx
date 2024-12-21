@@ -1,6 +1,19 @@
+# Ansible managed
+
 server {
 	listen 80;
 	listen [::]:80;
+{% if pterodactyl_panel_ssl_key is defined %}
+    # redirect traffi to https 
+    return 301 https://$host$request_uri;
+}
+server {
+	listen 443;
+	listen [::]:443;
+    ssl_certificate_key {{ pterodactyl_panel_ssl_key }};
+    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+{% endif %}
 
     server_name {{ pterodactyl_panel_domain }} ;
 
@@ -9,10 +22,6 @@ server {
     index index.php;
 
     access_log /var/log/nginx/pterodactly_client-access.log;
-    
-    ssl_certificate_key {{ pterodactyl_panel_ssl_key }};
-    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
-    ssl_ciphers         HIGH:!aNULL:!MD5;
 
     location ~ \.php$ {
         try_files $uri =404;
