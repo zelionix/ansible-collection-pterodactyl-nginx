@@ -30,6 +30,7 @@
   when: pterodactyl_panel_use_nginx is true
   ansible.builtin.package:
     name:
+      - nginx
       - php-fpm
 
 - name: Look for composer executable
