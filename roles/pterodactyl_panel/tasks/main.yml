@@ -37,4 +37,4 @@
 
 - name: Configure nginx
   when: pterodactyl_panel_use_nginx is true
-  ansible.builtin.include_tasks: web_ngixn.yml
+  ansible.builtin.include_tasks: web_nginx.yml

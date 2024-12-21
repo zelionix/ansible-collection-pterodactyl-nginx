@@ -4,16 +4,6 @@
     state: absent
   notify: Restart nginx
 
-# - name: webserver | Configure nginx vhosts
-#   ansible.builtin.template:
-#     src: "templates/etc/nginx/sites-enabled/{{ item }}"
-#     dest: "/etc/nginx/sites-enabled//{{ item }}"
-#     owner: root
-#     group: root
-#     mode: "0444"
-#   with_items:
-#     - front.conf
-
 - name: Site config is installed
   template:
     src: pterodactyl_nginx.conf.j2
