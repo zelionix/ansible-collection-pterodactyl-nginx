@@ -1,34 +1,78 @@
 # Ansible managed
 
 server {
-	listen 80;
-	listen [::]:80;
-{% if pterodactyl_panel_ssl_key is defined %}
+    server_name {{ pterodactyl_panel_domain }} ;
+	listen 80 ;
+	listen [::]:80 ;
+
+{% if pterodactyl_panel_ssl_mode != 'none' %}
     # redirect traffi to https 
     return 301 https://$host$request_uri;
 }
 server {
-	listen 443;
-	listen [::]:443;
+    server_name {{ pterodactyl_panel_domain }} ;
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+
     ssl_certificate_key {{ pterodactyl_panel_ssl_key }};
     ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
     ssl_ciphers         HIGH:!aNULL:!MD5;
-{% endif %}
 
-    server_name {{ pterodactyl_panel_domain }} ;
+    {# 
+    # TODO : htst stuff
+    
+    # See https://hstspreload.org/ before uncommenting the line below.
+    # add_header Strict-Transport-Security "max-age=15768000; preload;";
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Robots-Tag none;
+    add_header Content-Security-Policy "frame-ancestors 'self'";
+    add_header X-Frame-Options DENY;
+    add_header Referrer-Policy same-origin; #}
+
+{% endif %}
 
 	root {{ pterodactyl_panel_webroot }}/public ;
 
     index index.php;
 
-    access_log /var/log/nginx/pterodactly_client-access.log;
+    access_log /var/log/nginx/pterodactyl.app-access.log;
+    error_log  /var/log/nginx/pterodactyl.app-error.log error;
+
+    # allow larger file uploads and longer script runtimes
+    client_max_body_size 100m;
+    client_body_timeout 120s;
+
+    sendfile off;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
 
     location ~ \.php$ {
         try_files $uri =404;
-        # TODO : detect || variabalise fpm socket path
-        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock; # Warning : only the version as group & sticky bit that fit...
+        # TODO : detect || variabalise fpm socket path !
+        # This will depend of the distro defaults... uhu...
+        # package facts version ?
+        # 
+        # fastcgi_pass unix:/var/run/php/php8.2-fpm.sock; # Warning : only the version as group & sticky bit that fit...
+        
+        # this should be generic
+        fastcgi_pass unix:/run/php/php-fpm.sock; # Warning : only the version as group & sticky bit that fit...
+        
+        # Common part
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include fastcgi_params;
+        fastcgi_param PHP_VALUE "upload_max_filesize = 100M \n post_max_size=100M";
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTP_PROXY "";
+        fastcgi_intercept_errors off;
+        fastcgi_buffer_size 16k;
+        fastcgi_buffers 4 16k;
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
     }
 }

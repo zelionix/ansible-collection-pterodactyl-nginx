@@ -1,16 +1,27 @@
 - name: Default config is disabled
   file:
-    path: /etc/nginx/sites-enabled/default
+    path: /etc/nginx/sites-available/default
     state: absent
   notify: Restart nginx
+
+# TODO : nginx -t -c /etc/nginx/sites-available/pterodactyl.conf
 
 - name: Site config is installed
   template:
     src: pterodactyl_nginx.conf.j2
-    dest: /etc/nginx/sites-available/pterodactyl.conf
+    dest: /etc/nginx/sites-available/pterodactyl
     owner: root
     group: root
     mode: "0644"
+  notify: Restart nginx
+
+- name: Site config is enabled
+  file:
+    src: /etc/nginx/sites-available/pterodactyl
+    dest: /etc/nginx/conf.d/pterodactyl.conf
+    state: link
+    owner: root
+    group: root
   notify: Restart nginx
 
 - name: Nginx service is enabled

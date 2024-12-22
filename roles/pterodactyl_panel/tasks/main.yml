@@ -30,7 +30,7 @@
 - name: Create self-signed certificate
   ansible.builtin.include_tasks: web_cert_selfsign.yml
   when: pterodactyl_panel_ssl_mode == "selfsign"
-  
+
 - name: Configure apache2
   when: pterodactyl_panel_use_nginx is false
   ansible.builtin.include_tasks: web_apache2.yml
