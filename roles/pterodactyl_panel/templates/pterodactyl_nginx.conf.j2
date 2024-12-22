@@ -11,11 +11,11 @@ server {
 }
 server {
     server_name {{ pterodactyl_panel_domain }} ;
-    listen 443 ssl default_server;
-    listen [::]:443 ssl default_server;
+    listen 443 ssl ;
+    listen [::]:443 ssl ;
 
     ssl_certificate_key {{ pterodactyl_panel_ssl_key }};
-    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_certificate     {{ pterodactyl_panel_ssl_cert }};
     ssl_ciphers         HIGH:!aNULL:!MD5;
 
     {# 
@@ -51,18 +51,14 @@ server {
 
     location ~ \.php$ {
         try_files $uri =404;
-        # TODO : detect || variabalise fpm socket path !
-        # This will depend of the distro defaults... uhu...
-        # package facts version ?
-        # 
-        # fastcgi_pass unix:/var/run/php/php8.2-fpm.sock; # Warning : only the version as group & sticky bit that fit...
         
-        # this should be generic
-        fastcgi_pass unix:/run/php/php-fpm.sock; # Warning : only the version as group & sticky bit that fit...
+        # fastcgi_pass unix:/var/run/php/php8.2-fpm.sock; # Warning : only the version as group & sticky bit that fit...
+        # this MUST be generic we can have php8.2 or 8.3 !
+        # TODO : detect || variabalise fpm socket path !
+        fastcgi_pass unix:/run/php/php-fpm.sock; 
         
         # Common part
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
         fastcgi_index index.php;
         include fastcgi_params;
         fastcgi_param PHP_VALUE "upload_max_filesize = 100M \n post_max_size=100M";
