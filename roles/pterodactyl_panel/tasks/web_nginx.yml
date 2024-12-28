@@ -1,8 +1,11 @@
-- name: Default config is disabled
-  file:
-    path: /etc/nginx/sites-available/default
-    state: absent
-  notify: Restart nginx
+# we use the default config in dehydrated base role at the moment...
+# => fix default defydrated to let us remove it...
+#
+# - name: Default config is disabled
+#   file:
+#     path: /etc/nginx/sites-available/default
+#     state: absent
+#   notify: Restart nginx
 
 # TODO : nginx -t -c /etc/nginx/sites-available/pterodactyl.conf
 
