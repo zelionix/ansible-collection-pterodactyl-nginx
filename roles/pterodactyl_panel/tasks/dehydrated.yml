@@ -1,19 +1,30 @@
 # https://github.com/sigio/ansible-role-dehydrated
 
 # TODO : ensure that collection has been installed
-
-- name: Ensure that ansible-role-dehydrated is installed
-  ansible.builtin.file:
-    path: roles/ansible-role-dehydrated
+- name: SSL Ensure that ansible-role-dehydrated is installed
+  ansible.builtin.stat:
+    path: "{{ role_path }}/ansible-role-dehydratedT"
   register: dehydrated_role_dir
 
-- name: Ensure that ansible-role-dehydrated is installed
-  ansible.builtin.debug:
-    msg: {{ dehydrated_role_dir }}
+- name: Assert ansible-dehydrated role installed
+  ansible.builtin.fail:
+    msg: "Please install ansible-dehydrated role on your system :   "
+  when: dehydrated_role_dir.stat.exist is false
 
-# Assert ?
-
-- name: Install dehydrated from role
+- name: SSL Install Dehydrated from role
   when: pterodactyl_panel_ssl_mode == "dehydrated"
   ansible.builtin.import_role:
+    # - { role: sigio.dehydrated } => not working
     name: ansible-role-dehydrated
+
+- name: SSL Trigger dehydrated Challenge # noqa no-changed-when
+  when: pterodactyl_panel_ssl_mode == "dehydrated"  # noqa no-changed-when
+  ansible.builtin.shell:
+    cmd: 'set -o pipefail && dehydrated -c'
+    executable: /bin/bash
+  register: dehydrated_check
+  #"stderr": "ERROR: Problem connecting to server (get for https://acme-v02.api.letsencrypt.org/directory; curl returned with 6)
+
+- name: Dehydrated Check
+  ansible.builtin.debug:
+    msg: "Dehydrated Check {{ dehydrated_check }}"

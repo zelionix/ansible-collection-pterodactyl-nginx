@@ -18,8 +18,8 @@ pterodactyl_panel_ssl_cert: "{{ (pterodactyl_panel_ssl_mode == 'none') | ternary
 pterodactyl_panel_ssl_key: "{{ (pterodactyl_panel_ssl_mode == 'none') | ternary('/etc/letsencrypt/live/' + pterodactyl_panel_domain + '/privkey.pem', '/etc/ssl/panel-selfsign.key') }}"
 
 # SSL mode : "dehydrated" => use of https://github.com/sigio/ansible-role-dehydrated for Let's Encrypt support
-dehydrated_domains: [ {{ pterodactyl_panel_domain }} ]
-dehydrated_version:         "package" # we only use OS version
+dehydrated_domains: [ "{{ pterodactyl_panel_domain }}" ]
+dehydrated_version: "package" # we only use OS version
 # Have a look at defaults of dehydrated role ^_^
 # TODO : people have to do dehydrated -c as root..
 pterodactyl_panel_dehydrated_ssl_cert: "/var/lib/dehydrated/certs/{{ pterodactyl_panel_domain }}/fullchain.pem"

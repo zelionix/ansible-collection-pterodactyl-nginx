@@ -12,12 +12,12 @@
 - name: Prepare Panel install
   ansible.builtin.include_tasks: panel_prepare.yml
 
-- name: Configure Redis
-  ansible.builtin.include_tasks: redis.yml
-
 - name: Configure dehydrated
   ansible.builtin.include_tasks: dehydrated.yml
-  when: 
+  when: pterodactyl_panel_ssl_mode == "dehydrated"
+
+- name: Configure Redis
+  ansible.builtin.include_tasks: redis.yml
 
 - name: Install panel
   ansible.builtin.include_tasks: panel_install.yml

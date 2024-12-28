@@ -7,16 +7,16 @@ This role does the following:
 - Install `apache2` or `nginx` as a webserver
 - Install php with the distribution-provided (`libapache2-mod-php` or `php-fpm`) PHP runtime
 - Install `redis` for a in-memory cache
-
-- Optionally generate a self-signed certificate or use an existing one
+- Optionnaly use dehydrated to generate `Let's encrypt` SSL certificates for `apache2` or `nginx`
+- Optionally generate a self-signed certificate or use an existing one or you CA one
 - Install the Pterodactyl Panel using Composer
 - Set up an Admin user
 - Perform upgrades between panel versions
 
 There's a few things this role does *NOT* do, namely:
-- Set up a SQL Database - you can use [another role](https://github.com/geerlingguy/ansible-role-mysql) for this
-- Generate a TLS certificate using a service like Lets Encrypt - you can use [another role] ( dehydrated ) for this
+- Set up a SQL Database - you can use [another role](https://github.com/geerlingguy/ansible-role-mysql) or ansible community for this
 - Install a PHP version other than the one that comes with your OS - you can use Sury repository for that
+- Install a Dehydrated version other than the one that come with your OS
 
 ## Supported Distributions and Panel Versions
 
@@ -48,19 +48,18 @@ Other versions are supported on a best-effort basis.
 - Note that the panel will automatically update itself if set to `latest`
 - Default: `latest`
 
-### Apache2
-
-##### `pterodactyl_panel_upload_limit`
-- Maximum allowed upload file size for the panel
-- Default: `100M`
+##### `pterodactyl_panel_domain`
+- Domain for which the web server ( apache or nginx ) will respond to queries
+- Default: `{{ ansible_fqdn }}`
 
 ##### `pterodactyl_panel_webroot`
 - Path in which the panel application will be installed
 - Default: `/var/www/pterodactyl`
 
-##### `pterodactyl_panel_domain`
-- Domain for which the web server ( apache or nginx ) will respond to queries
-- Default: `{{ ansible_fqdn }}`
+##### `pterodactyl_panel_upload_limit`
+- Maximum allowed upload file size for the panel
+- Default: `100M`
+
 
 ##### `pterodactyl_panel_ssl_mode`
 - Determines how the role should handle the TLS certificates for the panel
@@ -90,17 +89,17 @@ Other versions are supported on a best-effort basis.
     - If `none`: `"/etc/letsencrypt/live/{{ pterodactyl_panel_domain }}/privkey.pem"` (the Let's Encrypt directory)
     - If `selfsign`: `/etc/ssl/panel-selfsign.key`
 
+##### `dehydrated_domains` : 
+the domain list to challenge with dehydtrated... default : [ "{{ pterodactyl_panel_domain }}" ]
+##### `dehydrated_version` : 
+default to "package", we only use OS version
+
 ##### `pterodactyl_panel_dehydrated_ssl_cert` : 
 - If pterodactyl_panel_ssl_mode is `dehydrated` use cert from `"/var/lib/dehydrated/certs/{{ pterodactyl_panel_domain }}"`  for web server
 
 ##### `pterodactyl_panel_dehydrated_ssl_key` : 
-    - If pterodactyl_panel_ssl_mode is dehydrated use this cert for web server
-    This is the key file read by the role. The file must already be present on the remote host and be readable by `www-data`.
-    - If `selfsign`: This is the path where the self-signed key will be stored by this role. The directory must already exist.
-"{{ (pterodactyl_panel_ssl_mode == 'dehydrated') | ternary('/var/lib/dehydrated/' + pterodactyl_panel_domain + '/fullchain.pem', '/etc/ssl/panel-selfsign.crt') }}"
-pterodactyl_panel_dehydrated_ssl_key: "{{ (pterodactyl_panel_ssl_mode == 'dehydrated') | ternary('/var/lib/dehydrated/' + pterodactyl_panel_domain + '/privkey.pem', '/etc/ssl/panel-selfsign.crt') }}"
-
-
+- If pterodactyl_panel_ssl_mode is `dehydrated` use key from `"/var/lib/dehydrated/certs/{{ pterodactyl_panel_domain }}"`  for web server
+  
 ### Panel Settings
 
 Prefix for all variables: `pterodactyl_panel_`
