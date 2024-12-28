@@ -4,6 +4,7 @@
   RewriteCond %{HTTPS} !=on
   RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
 </VirtualHost>
+
 <VirtualHost *:443>
   ServerName {{ pterodactyl_panel_domain }}
   DocumentRoot "{{ pterodactyl_panel_webroot }}/public"
@@ -13,7 +14,13 @@
   <Directory "{{ pterodactyl_panel_webroot }}/public">
     AllowOverride all
   </Directory>
+
   SSLEngine on
-  SSLCertificateFile {{ pterodactyl_panel_ssl_cert }}
-  SSLCertificateKeyFile {{ pterodactyl_panel_ssl_key }}
+{% if pterodactyl_panel_ssl_mode == "dehydrated" %}
+    SSLCertificateFile {{ pterodactyl_panel_dehydrated_ssl_cert }}
+    SSLCertificateKeyFile {{ pterodactyl_panel_dehydrated_ssl_key }}
+{% else %}
+    SSLCertificateFile {{ pterodactyl_panel_ssl_cert }}
+    SSLCertificateKeyFile {{ pterodactyl_panel_ssl_key }}
+{% endif %}
 </VirtualHost>

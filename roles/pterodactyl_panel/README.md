@@ -3,8 +3,11 @@
 Install and initialize a pterodactyl panel instance in line with the official install instructions.
 
 This role does the following:
-- Install `apache2` as the webserver with the distribution-provided (`libapache2-mod-php`) PHP runtime
+
+- Install `apache2` or `nginx` as a webserver
+- Install php with the distribution-provided (`libapache2-mod-php` or `php-fpm`) PHP runtime
 - Install `redis` for a in-memory cache
+
 - Optionally generate a self-signed certificate or use an existing one
 - Install the Pterodactyl Panel using Composer
 - Set up an Admin user
@@ -12,9 +15,8 @@ This role does the following:
 
 There's a few things this role does *NOT* do, namely:
 - Set up a SQL Database - you can use [another role](https://github.com/geerlingguy/ansible-role-mysql) for this
-- Generate a TLS certificate using a service like Lets Encrypt
-- Install a PHP version other than the one that comes with your OS
-- Allow using a Webserver other than Apache
+- Generate a TLS certificate using a service like Lets Encrypt - you can use [another role] ( dehydrated ) for this
+- Install a PHP version other than the one that comes with your OS - you can use Sury repository for that
 
 ## Supported Distributions and Panel Versions
 
@@ -24,8 +26,8 @@ We officially support the following distributions and releases:
 | Distribution | PHP Version | Supported Panel Release | Note |
 |--------------|-------------|-------------------------|------|
 | Ubuntu 24.04 LTS | `8.3` | `latest` | |
-| Ubuntu 22.04 LTS | `8.1` | `latest` | |
-| Ubuntu 20.04 LTS | `7.4` | `<=1.10.x` | `1.10` releases are the last to support PHP 7 |
+NO: the latest ptero panel require php >= 8.2 | Ubuntu 22.04 LTS | `8.1` | `latest` |
+| Ubuntu 20.04 LTS | `7.4` | `<=1.10.x` | `1.10` releases are the last to support PHP 7 | 
 | Debian 12 | `8.2` |`latest` | |
 | Debian 11 | `7.4` |`<=1.10.x` | `1.10` releases are the last to support PHP 7 |
 
@@ -48,25 +50,30 @@ Other versions are supported on a best-effort basis.
 
 ### Apache2
 
+##### `pterodactyl_panel_upload_limit`
+- Maximum allowed upload file size for the panel
+- Default: `100M`
+
 ##### `pterodactyl_panel_webroot`
-- Path in which the panel should be installed
+- Path in which the panel application will be installed
 - Default: `/var/www/pterodactyl`
 
 ##### `pterodactyl_panel_domain`
-- Domain for which Apache2 should respond to queries
+- Domain for which the web server ( apache or nginx ) will respond to queries
 - Default: `{{ ansible_fqdn }}`
 
 ##### `pterodactyl_panel_ssl_mode`
 - Determines how the role should handle the TLS certificates for the panel
 - If set to `selfsign`, the role creates a self-signed certificate and uses it for the Panel.
   You should only use a self-signed certificate for private use or during testing.
-  For production deployments, please use a service like Lets Encrypt to generate a valid certificate.
+  For production deployments, please use a service like Lets Encrypt / Dehydrated  to generate a valid certificate.
+- If set to  `dehydrated`, the role use dehydrated certs for let's encrypt service.
 - If set to `none`, the role does not manage certificates - it just loads an existing server certificate from `pterodactyl_panel_ssl_<cert/key>`.
-  You are responsible for providing such a certificate before running the role (for example via Lets Encrypt)
+  You are responsible for providing such a certificate before running the role (for example an authority signed certificate, or internal CA )
 - Default: `none`
 
 ##### `pterodactyl_panel_ssl_cert`
-- Certificate file for the apache2 webserver
+- Certificate file for the apache or nginx webserver
 - The behavior depends on `pterodactyl_panel_ssl_mode`:
     - If `none`: This is the certificate read by the role. The file must already be present on the remote host and be readable by `www-data`.
     - If `selfsign`: This is the path where the self-signed certificate will be stored by this role. The directory must already exist.
@@ -75,7 +82,7 @@ Other versions are supported on a best-effort basis.
     - If `selfsign`: `/etc/ssl/panel-selfsign.crt`
 
 ##### `pterodactyl_panel_ssl_key`
-- Key file for the apache2 webserver
+- Key file for the apache or nginx webserver
 - The behavior depends on `pterodactyl_panel_ssl_mode`:
     - If `none`: This is the key file read by the role. The file must already be present on the remote host and be readable by `www-data`.
     - If `selfsign`: This is the path where the self-signed key will be stored by this role. The directory must already exist.
@@ -83,9 +90,16 @@ Other versions are supported on a best-effort basis.
     - If `none`: `"/etc/letsencrypt/live/{{ pterodactyl_panel_domain }}/privkey.pem"` (the Let's Encrypt directory)
     - If `selfsign`: `/etc/ssl/panel-selfsign.key`
 
-##### `pterodactyl_panel_upload_limit`
-- Maximum allowed upload file size for the panel
-- Default: `100M`
+##### `pterodactyl_panel_dehydrated_ssl_cert` : 
+- If pterodactyl_panel_ssl_mode is `dehydrated` use cert from `"/var/lib/dehydrated/certs/{{ pterodactyl_panel_domain }}"`  for web server
+
+##### `pterodactyl_panel_dehydrated_ssl_key` : 
+    - If pterodactyl_panel_ssl_mode is dehydrated use this cert for web server
+    This is the key file read by the role. The file must already be present on the remote host and be readable by `www-data`.
+    - If `selfsign`: This is the path where the self-signed key will be stored by this role. The directory must already exist.
+"{{ (pterodactyl_panel_ssl_mode == 'dehydrated') | ternary('/var/lib/dehydrated/' + pterodactyl_panel_domain + '/fullchain.pem', '/etc/ssl/panel-selfsign.crt') }}"
+pterodactyl_panel_dehydrated_ssl_key: "{{ (pterodactyl_panel_ssl_mode == 'dehydrated') | ternary('/var/lib/dehydrated/' + pterodactyl_panel_domain + '/privkey.pem', '/etc/ssl/panel-selfsign.crt') }}"
+
 
 ### Panel Settings
 

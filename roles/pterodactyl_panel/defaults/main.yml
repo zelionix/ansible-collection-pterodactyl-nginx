@@ -1,16 +1,27 @@
 ---
 pterodactyl_panel_version: latest
 
-# Apache2
 pterodactyl_panel_webroot: /var/www/pterodactyl
 pterodactyl_panel_domain: "{{ ansible_fqdn }}"
-pterodactyl_panel_ssl_mode: "none"
-pterodactyl_panel_ssl_cert: "{{ (pterodactyl_panel_ssl_mode == 'none') | ternary('/etc/letsencrypt/live/' + pterodactyl_panel_domain + '/fullchain.pem', '/etc/ssl/panel-selfsign.crt') }}"
-pterodactyl_panel_ssl_key: "{{ (pterodactyl_panel_ssl_mode == 'none') | ternary('/etc/letsencrypt/live/' + pterodactyl_panel_domain + '/privkey.pem', '/etc/ssl/panel-selfsign.key') }}"
 pterodactyl_panel_upload_limit: 100M
 
-# Nginx 
+# Nginx or Apache ( default )
 pterodactyl_panel_use_nginx: false
+
+#==  SSL
+
+pterodactyl_panel_ssl_mode: "none"          # == self signed... ===> this will not work well with wings no ?
+# pterodactyl_panel_ssl_mode: "dehydrated"  # use dehydrated directory 
+# -- other ?
+
+# If SSL mode is 'dehydrated'
+pterodactyl_panel_dehydrated_ssl_cert: "/var/lib/dehydrated/certs/{{ pterodactyl_panel_domain }}/fullchain.pem"
+pterodactyl_panel_dehydrated_ssl_key:  "/var/lib/dehydrated/certs/{{ pterodactyl_panel_domain }}/privkey.pem"
+
+# Let's encrypt acme or sefl-signed
+pterodactyl_panel_ssl_cert: "{{ (pterodactyl_panel_ssl_mode == 'none') | ternary('/etc/letsencrypt/live/' + pterodactyl_panel_domain + '/fullchain.pem', '/etc/ssl/panel-selfsign.crt') }}"
+pterodactyl_panel_ssl_key: "{{ (pterodactyl_panel_ssl_mode == 'none') | ternary('/etc/letsencrypt/live/' + pterodactyl_panel_domain + '/privkey.pem', '/etc/ssl/panel-selfsign.key') }}"
+
 
 #pterodactyl_panel_app_key:
 #pterodactyl_panel_hashids_salt:

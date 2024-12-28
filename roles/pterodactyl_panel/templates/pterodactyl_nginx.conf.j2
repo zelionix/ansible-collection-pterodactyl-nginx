@@ -5,7 +5,7 @@ server {
 	listen 80 ;
 	listen [::]:80 ;
 
-    {% if pterodactyl_panel_use_dehydrated %}
+    {% if pterodactyl_panel_ssl_mode == "dehydrated" %}
     location ^~ /.well-known/acme-challenge {
         alias /var/lib/dehydrated/acme-challenges;
     }
@@ -19,14 +19,17 @@ server {
     listen 443 ssl ;
     listen [::]:443 ssl ;
 
-    ssl_certificate_key {{ pterodactyl_panel_ssl_key }};
-    ssl_certificate     {{ pterodactyl_panel_ssl_cert }};
     ssl_ciphers         HIGH:!aNULL:!MD5;
 
-    {% if pterodactyl_panel_use_dehydrated %}
-    location ^~ /.well-known/acme-challenge {
-        alias /var/lib/dehydrated/acme-challenges;
-    }
+    {% if pterodactyl_panel_ssl_mode == "dehydrated" %}
+        ssl_certificate     {{ pterodactyl_panel_dehydrated_ssl_cert }};
+        ssl_certificate_key {{ pterodactyl_panel_dehydrated_ssl_key }};
+        location ^~ /.well-known/acme-challenge {
+            alias /var/lib/dehydrated/acme-challenges;
+        }
+    {% else %}
+        ssl_certificate     {{ pterodactyl_panel_ssl_cert }};
+        ssl_certificate_key {{ pterodactyl_panel_ssl_key }};
     {% endif %}
     {# 
     # TODO : htst stuff
@@ -48,7 +51,7 @@ server {
     error_log  /var/log/nginx/pterodactyl.app-error.log error;
 
     # allow larger file uploads and longer script runtimes
-    client_max_body_size 100m;
+    client_max_body_size {{ pterodactyl_panel_upload_limit | lower }};
     client_body_timeout 120s;
 
     sendfile off;
@@ -60,9 +63,7 @@ server {
     location ~ \.php$ {
         try_files $uri =404;
         
-        # fastcgi_pass unix:/var/run/php/php8.2-fpm.sock; # Warning : only the version as group & sticky bit that fit...
-        # this MUST be generic we can have php8.2 or 8.3 !
-        # TODO : detect || variabalise fpm socket path !
+        # WARNING : this must be generic we can have php7.x, php8.2 or 8.3 or....
         fastcgi_pass unix:/run/php/php-fpm.sock; 
         
         # Common part
