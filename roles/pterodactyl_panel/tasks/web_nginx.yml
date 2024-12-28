@@ -1,15 +1,4 @@
-# we use the default config in dehydrated base role at the moment...
-# => fix default defydrated to let us remove it...
-#
-# - name: Default config is disabled
-#   file:
-#     path: /etc/nginx/sites-available/default
-#     state: absent
-#   notify: Restart nginx
-
-# TODO : nginx -t -c /etc/nginx/sites-available/pterodactyl.conf
-
-- name: Site config is installed
+- name: Nginx Site config is installed
   template:
     src: pterodactyl_nginx.conf.j2
     dest: /etc/nginx/sites-available/pterodactyl
@@ -18,7 +7,7 @@
     mode: "0644"
   notify: Restart nginx
 
-- name: Site config is enabled
+- name: Nginx Site config is enabled
   file:
     src: /etc/nginx/sites-available/pterodactyl
     dest: /etc/nginx/conf.d/pterodactyl.conf

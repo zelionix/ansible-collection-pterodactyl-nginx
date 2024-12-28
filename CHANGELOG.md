@@ -2,7 +2,12 @@
 <a name="v3.1.0"></a>
 ### Features
 -  ** nginx as possible webserver **  ansible-collection-pterodactyl/issues/220)) [Lionel Kaufmann]
--  ** nginx as possible SSL let's encrypt solution **
+-  ** dehydrated SSL let's encrypt solution **
+
+<a name="v3.0.0"></a>
+### Features
+-  ** bump ansible to 2.17, raise minimum python to 3.7 @maxhoesel (#195)
+-  ** add support for ubuntu 24.04, remove debian 10 @maxhoesel (#196)
 
 <a name="v0.4.1"></a>
 ## [v0.4.1] - 2022-01-21
