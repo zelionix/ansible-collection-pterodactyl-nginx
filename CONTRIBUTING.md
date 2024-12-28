@@ -26,6 +26,7 @@ Steps:
 ### Plugins (and Modules)
 
 There are currently no plugins in this collection.
+Optionnaly you can use dehydrated role for SSL let's Encrypt generation
 In the future, we may add modules to wrap around the pterodactyl API.
 
 ### Roles
