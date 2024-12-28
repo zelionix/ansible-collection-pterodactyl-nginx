@@ -1,0 +1,19 @@
+# https://github.com/sigio/ansible-role-dehydrated
+
+# TODO : ensure that collection has been installed
+
+- name: Ensure that ansible-role-dehydrated is installed
+  ansible.builtin.file:
+    path: roles/ansible-role-dehydrated
+  register: dehydrated_role_dir
+
+- name: Ensure that ansible-role-dehydrated is installed
+  ansible.builtin.debug:
+    msg: {{ dehydrated_role_dir }}
+
+# Assert ?
+
+- name: Install dehydrated from role
+  when: pterodactyl_panel_ssl_mode == "dehydrated"
+  ansible.builtin.import_role:
+    name: ansible-role-dehydrated

@@ -15,6 +15,10 @@
 - name: Configure Redis
   ansible.builtin.include_tasks: redis.yml
 
+- name: Configure dehydrated
+  ansible.builtin.include_tasks: dehydrated.yml
+  when: 
+
 - name: Install panel
   ansible.builtin.include_tasks: panel_install.yml
   when: not pterodactyl_panel_install_exists

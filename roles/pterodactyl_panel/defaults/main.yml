@@ -5,22 +5,25 @@ pterodactyl_panel_webroot: /var/www/pterodactyl
 pterodactyl_panel_domain: "{{ ansible_fqdn }}"
 pterodactyl_panel_upload_limit: 100M
 
-# Nginx or Apache ( default )
-pterodactyl_panel_use_nginx: false
+pterodactyl_panel_use_nginx: false # Nginx ( true ) or Apache ( false ) 
 
-#==  SSL
+# ==  SSL
 
 pterodactyl_panel_ssl_mode: "none"          # == self signed... ===> this will not work well with wings no ?
-# pterodactyl_panel_ssl_mode: "dehydrated"  # use dehydrated directory 
+# pterodactyl_panel_ssl_mode: "dehydrated"  # use ansible-role-dehydrated 
 # -- other ?
-
-# If SSL mode is 'dehydrated'
-pterodactyl_panel_dehydrated_ssl_cert: "/var/lib/dehydrated/certs/{{ pterodactyl_panel_domain }}/fullchain.pem"
-pterodactyl_panel_dehydrated_ssl_key:  "/var/lib/dehydrated/certs/{{ pterodactyl_panel_domain }}/privkey.pem"
 
 # Let's encrypt acme or sefl-signed
 pterodactyl_panel_ssl_cert: "{{ (pterodactyl_panel_ssl_mode == 'none') | ternary('/etc/letsencrypt/live/' + pterodactyl_panel_domain + '/fullchain.pem', '/etc/ssl/panel-selfsign.crt') }}"
 pterodactyl_panel_ssl_key: "{{ (pterodactyl_panel_ssl_mode == 'none') | ternary('/etc/letsencrypt/live/' + pterodactyl_panel_domain + '/privkey.pem', '/etc/ssl/panel-selfsign.key') }}"
+
+# SSL mode : "dehydrated" => use of https://github.com/sigio/ansible-role-dehydrated for Let's Encrypt support
+dehydrated_domains: [ {{ pterodactyl_panel_domain }} ]
+dehydrated_version:         "package" # we only use OS version
+# Have a look at defaults of dehydrated role ^_^
+# TODO : people have to do dehydrated -c as root..
+pterodactyl_panel_dehydrated_ssl_cert: "/var/lib/dehydrated/certs/{{ pterodactyl_panel_domain }}/fullchain.pem"
+pterodactyl_panel_dehydrated_ssl_key:  "/var/lib/dehydrated/certs/{{ pterodactyl_panel_domain }}/privkey.pem"
 
 
 #pterodactyl_panel_app_key:
@@ -36,6 +39,7 @@ pterodactyl_panel_db_port: 3306
 pterodactyl_panel_db_name: panel
 pterodactyl_panel_db_user: pterodactyl
 #pterodactyl_panel_db_password:
+# TODO : propose user creation with ansbile community mysql ?
 
 pterodactyl_panel_mail_host: "127.0.0.1"
 pterodactyl_panel_mail_port: 25
