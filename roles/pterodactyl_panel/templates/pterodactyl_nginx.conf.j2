@@ -21,6 +21,11 @@ server {
 
     ssl_ciphers         HIGH:!aNULL:!MD5;
 
+    # modern configuration
+    ssl_protocols TLSv1.3;
+    ssl_ecdh_curve X25519:prime256v1:secp384r1;
+    ssl_prefer_server_ciphers off;
+
     {% if pterodactyl_panel_ssl_mode == "dehydrated" %}
         ssl_certificate     {{ pterodactyl_panel_dehydrated_ssl_cert }};
         ssl_certificate_key {{ pterodactyl_panel_dehydrated_ssl_key }};
@@ -31,8 +36,8 @@ server {
         ssl_certificate     {{ pterodactyl_panel_ssl_cert }};
         ssl_certificate_key {{ pterodactyl_panel_ssl_key }};
     {% endif %}
+
     {# 
-    # TODO : htst stuff
     # See https://hstspreload.org/ before uncommenting the line below.
     # add_header Strict-Transport-Security "max-age=15768000; preload;";
     add_header X-Content-Type-Options nosniff;
@@ -70,7 +75,7 @@ server {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_index index.php;
         include fastcgi_params;
-        fastcgi_param PHP_VALUE "upload_max_filesize = 100M \n post_max_size=100M";
+        fastcgi_param PHP_VALUE "upload_max_filesize = {{ pterodactyl_panel_upload_limit }} \n post_max_size={{ pterodactyl_panel_upload_limit }}";
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param HTTP_PROXY "";
         fastcgi_intercept_errors off;
