@@ -13,7 +13,6 @@
 - name: SSL Install Dehydrated from role
   when: pterodactyl_panel_ssl_mode == "dehydrated"
   ansible.builtin.import_role:
-    # - { role: sigio.dehydrated } => not working
     name: ansible-role-dehydrated
 
 - name: SSL Trigger dehydrated Challenge # noqa no-changed-when

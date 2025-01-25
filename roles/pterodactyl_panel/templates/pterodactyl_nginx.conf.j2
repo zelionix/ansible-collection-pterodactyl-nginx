@@ -5,11 +5,17 @@ server {
 	listen 80 ;
 	listen [::]:80 ;
 
+    # Allow challenge mode on http protocol
     {% if pterodactyl_panel_ssl_mode == "dehydrated" %}
     location ^~ /.well-known/acme-challenge {
         alias /var/lib/dehydrated/acme-challenges;
     }
     {% endif %}
+
+    access_log /var/log/nginx/pterodactyl-port80-access.log;
+    error_log  /var/log/nginx/pterodactyl-port80-error.log error;
+
+    # http to https
     location / {
 		return 301 https://$host$request_uri;
 	}
